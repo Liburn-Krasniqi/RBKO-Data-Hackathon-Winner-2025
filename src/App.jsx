@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Form, Button, Row, Col, Alert } from "react-bootstrap";
+import { Form, Button, Row, Col, Alert, Spinner } from "react-bootstrap";
 import "./App.css";
 
 function App() {
@@ -16,52 +16,144 @@ function App() {
     Investments: "",
     Loan_Amount: "",
     Loan_Term_Months: "",
+    Occupation: "",
   });
   const [result, setResult] = useState(null);
+  const [advice, setAdvice] = useState(null);
+  const [loadingResult, setLoadingResult] = useState(false);
+  const [loadingAdvice, setLoadingAdvice] = useState(false);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  event.stopPropagation();
 
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      setValidated(true);
-      return;
-    }
-
-    try {
-      const res = await fetch("http://127.0.0.1:8000/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Age: Number(formData.Age),
-          Income_Level: Number(formData.Income_Level),
-          Account_Balance: Number(formData.Account_Balance),
-          Deposits: Number(formData.Deposits),
-          Withdrawals: Number(formData.Withdrawals),
-          Transfers: Number(formData.Transfers),
-          International_Transfers: Number(formData.International_Transfers),
-          Investments: Number(formData.Investments),
-          Loan_Amount: Number(formData.Loan_Amount),
-          Loan_Term_Months: Number(formData.Loan_Term_Months),
-        }),
-      });
-
-      const data = await res.json();
-      setResult(data);
-      console.log("Prediction result:", data);
-    } catch (err) {
-      console.error("Prediction error:", err);
-      setResult({ message: "⚠️ API request failed." });
-    }
-
+  const form = event.currentTarget;
+  if (form.checkValidity() === false) {
     setValidated(true);
+    return;
+  }
+
+  // --- Pre-eligibility checks before sending to backend ---
+  const Age = Number(formData.Age);
+  const Income = Number(formData.Income_Level);
+  const LoanAmount = Number(formData.Loan_Amount);
+  const LoanTerm = Number(formData.Loan_Term_Months);
+  const MonthlyDebt = Number(formData.Withdrawals); // assuming withdrawals = monthly debt
+  const CollateralValue = Number(formData.Account_Balance); // placeholder
+  const EmploymentStatus = formData.Occupation ? "Employed" : "Unemployed"; // simple check
+  const DefaultHistory = 0; // placeholder
+  const UnemploymentRate = 12; // placeholder %
+  const Inflation = 5; // placeholder %
+  const InterestRate = 6; // placeholder %
+  const model_probability = 0.8; // placeholder probability
+
+  const reject = (msg) => {
+    setResult({ message: `❌ Loan Rejected: ${msg}`, reliable: false });
+    return true;
   };
+  const approve = (msg) => {
+    setResult({ message: `✅ ${msg}`, reliable: true });
+    return false;
+  };
+
+  if (Age < 18) {
+    if (reject("Client is under legal age")) return;
+  } else if (Age + LoanTerm > 65) {
+    if (reject("Loan term exceeds retirement age")) return;
+  } else if (Income <= 0) {
+    if (reject("No verifiable income")) return;
+  } else if ((MonthlyDebt / Income) > 0.40) {
+    if (reject("Debt-to-income ratio is too high")) return;
+  } else if (LoanAmount > Income * 6) {
+    if (reject("Loan amount is too high compared to income")) return;
+  } else if ((LoanAmount / CollateralValue) > 0.80) {
+    if (reject("Loan-to-collateral ratio is too high")) return;
+  } else if (EmploymentStatus !== "Employed") {
+    if (reject("No stable employment")) return;
+  } else if (DefaultHistory > 0) {
+    if (reject("Credit history shows defaults")) return;
+  } else if (UnemploymentRate >= 15 && (MonthlyDebt / Income) > 0.35) {
+    if (reject("High unemployment risk with high debt-to-income")) return;
+  } else if (Inflation >= 10 && LoanAmount > Income * 5) {
+    if (reject("High inflation – loan amount restricted")) return;
+  } else if (InterestRate >= 8 && model_probability < 0.75) {
+    if (reject("High interest rate – requires stronger approval probability")) return;
+  } else if (model_probability < 0.70) {
+    if (reject("Approval probability is too low")) return;
+  } else {
+    if (approve("Loan may be approved")) return;
+  }
+
+  // --- If all checks pass, continue submission ---
+  setValidated(true);
+  setResult(null);
+  setAdvice(null);
+
+  // ---- 1) Send to FastAPI backend ----
+  setLoadingResult(true);
+  try {
+    const res = await fetch("http://127.0.0.1:8000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Age,
+        Income_Level: Income,
+        Account_Balance: Number(formData.Account_Balance),
+        Deposits: Number(formData.Deposits),
+        Withdrawals: Number(formData.Withdrawals),
+        Transfers: Number(formData.Transfers),
+        International_Transfers: Number(formData.International_Transfers),
+        Investments: Number(formData.Investments),
+        Loan_Amount: LoanAmount,
+        Loan_Term_Months: LoanTerm,
+      }),
+    });
+
+    const data = await res.json();
+    setResult(data);
+  } catch (err) {
+    console.error("Prediction error:", err);
+    setResult({ message: "⚠️ API request failed." });
+  } finally {
+    setLoadingResult(false);
+  }
+
+  // ---- 2) Banker Advice (unchanged) ----
+  setLoadingAdvice(true);
+  try {
+    const SYSTEM_PROMPT = `You are an adviser for bankers, you give them insights on if their clients based on their job (stability and growth) are good loan candidates. Give 2-4 sentence answers, short and concise. In the end give a short final statement if they should be CONSIDERED (not absolute statements) for the loan. Here is their occupation: ${formData.Occupation}. Dont format in markdown. Pretend you are getting this information via a Study done by the WEF in 2025.`;
+
+    const resAdvice = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer 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",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-20b:free",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `Please analyze this occupation: ${formData.Occupation}` },
+        ],
+      }),
+    });
+
+    const dataAdvice = await resAdvice.json();
+    const message = dataAdvice?.choices?.[0]?.message?.content || "⚠️ No advice received.";
+    setAdvice(message);
+  } catch (err) {
+    console.error("OpenRouter error:", err);
+    setAdvice("⚠️ Could not fetch banker advice.");
+  } finally {
+    setLoadingAdvice(false);
+  }
+};
+
 
   return (
     <div className="container py-4">
@@ -171,6 +263,15 @@ function App() {
               onChange={handleChange}
             />
           </Form.Group>
+          <Form.Group as={Col} md="6" controlId="Occupation">
+            <Form.Label>Occupation</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter your occupation"
+              value={formData.Occupation}
+              onChange={handleChange}
+            />
+          </Form.Group>
         </Row>
 
         <div className="text-center">
@@ -180,12 +281,33 @@ function App() {
         </div>
       </Form>
 
-      {result && (
+      {/* Loan Prediction Result */}
+      {loadingResult && (
+        <div className="mt-4 text-center">
+          <Spinner animation="border" role="status" />
+          <p className="mt-2">Loading loan prediction...</p>
+        </div>
+      )}
+      {result && !loadingResult && (
         <Alert
-          variant={result.liable ? "success" : "danger"}
-          className="mt-4 text-center"
+          variant={result.reliable ? "success" : "danger"}
+          className="mt-4 text-center opacity-75"
         >
           <h4>{result.message}</h4>
+        </Alert>
+      )}
+
+      {/* Banker Adviser Advice */}
+      {loadingAdvice && (
+        <div className="mt-3 text-center text-primary">
+          <Spinner animation="border" role="status" />
+          <p className="mt-2 fs-1">Fetching banker advice...</p>
+        </div>
+      )}
+      {advice && !loadingAdvice && (
+        <Alert variant="info" className="mt-3 text-center opacity-75">
+          <h5>Banker Adviser Insights:</h5>
+          <p>{advice}</p>
         </Alert>
       )}
     </div>
