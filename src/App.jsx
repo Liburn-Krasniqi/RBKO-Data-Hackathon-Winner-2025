@@ -131,7 +131,7 @@ const handleSubmit = async (event) => {
     const resAdvice = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer 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",
+        "Authorization": `Bearer ${process.env.REACT_APP_OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
