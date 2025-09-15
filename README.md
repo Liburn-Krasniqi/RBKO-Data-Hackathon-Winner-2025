@@ -25,7 +25,8 @@ That returns a:
 
 # Architecture Overview:
 
-![[Pasted image 20250915164235.png]]
+<img width="861" height="650" alt="image" src="https://github.com/user-attachments/assets/75f68af8-5467-4892-96db-87443702551c" />
+
 
 ## Prediction Model:
 
