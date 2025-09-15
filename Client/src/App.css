@@ -1,0 +1,103 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+/* App.css */
+
+body {
+  background-image: url("raif.png") ; /* dark dark blue */
+  color: #FFD700; /* yellow text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+  font-weight: bold;
+  color: #102F5E; /* strong yellow */
+  text-shadow: #FFC107 1px 1px 2px;
+}
+
+form {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 25px;
+  background-color: #102F5E; /* slightly lighter dark blue */
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+label {
+  color: #FFD700; /* yellow labels */
+  font-weight: 600;
+}
+
+.form-control, .form-select, textarea {
+  background-color: #0A2540; 
+  border: 1px solid #FFD700;
+  color: #FFD700;
+}
+
+.form-control:focus, .form-select:focus, textarea:focus {
+  background-color: #0A2540;
+  border-color: #FFEB3B;
+  outline: none;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+  color: #FFD700;
+}
+
+.btn {
+  background-color: #FFD700;
+  color: #0A2540;
+  font-weight: bold;
+  border: none;
+  transition: 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #FFC107;
+  color: #0A2540;
+  transform: scale(1.05);
+}
+
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
