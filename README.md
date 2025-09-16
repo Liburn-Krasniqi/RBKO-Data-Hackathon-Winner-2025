@@ -1,11 +1,18 @@
-# Raiffeisen Bank 2025 Data Hackathon winning project.
+# 🏆 Raiffeisen Bank 2025 Data Hackathon: Winning Project
+
+![Hackathon](https://img.shields.io/badge/Hackathon-Winner-blueviolet)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![React](https://img.shields.io/badge/React-18.0%2B-61dafb)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.68%2B-009688)
+![Machine Learning](https://img.shields.io/badge/ML-LogisticRegression-orange)
+![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)
 
 During 11-12 sept 2025 our team worked on:
 
 1. Combining **internal** banking data (transactions, loans, deposits) with **external** open data (inflation, demographics, unemployment, market statistics) inside a data warehouse, identifying trends (how external factors influence customer behavior)
 2. And **predict risks** (likelihood of defaults, reduced deposits, or transaction drops).
 
-This repo covers #2 of our work.
+This repo covers Part 2 of our work.
 
 ---
 
@@ -21,18 +28,26 @@ That returns a:
 - Guess if client will default (If they are reliable)
 - Insights on their job stability.
 
----
 
 # Architecture Overview:
 
-<img width="861" height="650" alt="image" src="https://github.com/user-attachments/assets/75f68af8-5467-4892-96db-87443702551c" />
-
+```mermaid
+graph TD
+    A[Client Interface] --> B[FastAPI Server]
+    B --> C[ML Model]
+    B --> D[Vector Database]
+    D --> E[WEF Report Embeddings]
+    C --> F[Risk Prediction]
+    E --> G[Industry Insights]
+    F --> H[Decision Output]
+    G --> H
+```
 
 ## Prediction Model:
 
 Trained a prediction model with the [LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) algorithm with data from: [Internal Dataset](https://www.kaggle.com/datasets/s3r1alsh0ck/finance-dataset-for-credit-risk-fraud-detection?resource=download) where we have imputed the default feature (values 1 or 0). Only numeric features were used.
 
-# Retrieval Augmented Pipeline:
+## Retrieval Augmented Pipeline:
 
 Used Milvus embedding model for creating word embeddings (Vectorizing) for the `WEF_Future_of_Jobs_Report_2025`, and query embeddings.
 
@@ -51,6 +66,12 @@ To try out you must have in your machine:
 - pip
 - node with npm
 
+## Installation:
+```
+git clone https://github.com/Liburn-Krasniqi/RBKO-Data-Hackathon-Winner-2025.git
+cd RBKO-Data-Hackathon-2025
+```
+
 ## 💻 Client setup:
 
 Go to:
@@ -63,9 +84,6 @@ and run:
 
 ```
 npm i  # installs node modules
-```
-
-```
 npm run dev  # runs app
 ```
 
@@ -85,23 +103,21 @@ and run:
 
 ```
 pip install -r requirements.txt  # installs requirements
-```
-
-```
 uvicorn app:app --reload --port 3000  # runs server
 ```
 
 ---
 
-**Team (DataWave):** [Diella Kika](https://github.com/diellakika), Eron Rexha, [Lendiona Gashi](https://github.com/gashilendiona), Liburn Krasniqi, [Olt Shala](https://github.com/OltShala), [Sumea Zogaj](https://github.com/SumeaZ).
-**Mentor:** Vigan Behrami.
+# Tech Stack:
+
+💻 **Frontend**: React.js with Vite\
+⚙️ **Backend**: Python FastAPI\
+🧠 **ML:** ScikitLearn\
+📖 **LLM**: free model from OpenRouter\
+📦 **Vector DB & Embedding model**: Milvus
 
 ---
 
-# Tech Stack:
+**Team (DataWave):** [Diella Kika](https://github.com/diellakika), Eron Rexha, [Lendiona Gashi](https://github.com/gashilendiona), Liburn Krasniqi, [Olt Shala](https://github.com/OltShala), [Sumea Zogaj](https://github.com/SumeaZ).
 
-💻 **Frontend**: React.js with Vite
-⚙️ **Backend**: Python FastAPI
-🧠 **ML:** ScikitLearn
-📖 **LLM**: free model from OpenRouter
-📦 **Vector DB & Embedding model**: Milvus
+**Mentor:** Vigan Behrami.
