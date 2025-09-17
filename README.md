@@ -118,6 +118,6 @@ uvicorn app:app --reload --port 3000  # runs server
 
 ---
 
-**Team (DataWave):** [Diella Kika](https://github.com/diellakika), Eron Rexha, [Lendiona Gashi](https://github.com/gashilendiona), Liburn Krasniqi, [Olt Shala](https://github.com/OltShala), [Sumea Zogaj](https://github.com/SumeaZ).
+**Team (DataWave):** [Diella Kika](https://github.com/diellakika), [Eron Rexha](https://github.com/EronRexha), [Lendiona Gashi](https://github.com/gashilendiona), Liburn Krasniqi, [Olt Shala](https://github.com/OltShala), [Sumea Zogaj](https://github.com/SumeaZ).
 
 **Mentor:** Vigan Behrami.
